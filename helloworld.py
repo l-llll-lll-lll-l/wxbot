@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
     # Run chat completion in OpenAI API.
     for response in engine.chat.completions.create(
-        messages=[{"role": "user", "content": "你是谁?"}],
+        messages=[{"role": "user", "content": "What is the meaning of life?"}],
         model=model,
         stream=True,
     ):

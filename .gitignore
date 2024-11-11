@@ -2,3 +2,4 @@ qwen2.5_0.5b/
 model_lib/
 model_weights/
 .idea/
+**/__pycache__/
