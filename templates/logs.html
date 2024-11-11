@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日志部分</title>
+</head>
+<body>
+    <h1>机器人交互日志</h1>
+    <form method="post">
+        <label for="search_keyword">搜索日志:</label>
+        <input type="text" id="search_keyword" name="search_keyword">
+        <button type="submit">搜索</button>
+    </form>
+
+    <h2>日志列表</h2>
+    <ul>
+        {% for log in logs %}
+            <li>[{{ log.timestamp }}] 用户消息: {{ log.message }}, 机器人回复: {{ log.reply }}</li>
+        {% endfor %}
+    </ul>
+    <button onclick="location.href='/export_logs'">导出日志</button>
+</body>
+</html>
