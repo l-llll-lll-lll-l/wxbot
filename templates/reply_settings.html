@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>回复设置</title>
+</head>
+<body>
+    <h1>设置回复规则</h1>
+    <form method="POST">
+        <label for="selected_user">选择用户:</label>
+        <select name="selected_user" id="selected_user">
+            {% for user in users %}
+                <option value="{{ user }}">{{ user }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="keyword">回复指令:</label>
+        <input type="text" name="keyword" required>
+
+        <button type="submit">添加回复规则</button>
+    </form>
+
+    <h2>现有回复规则</h2>
+    <ul>
+        {% for user in users %}
+            <li>{{ user }} 的规则:
+                <ul>
+                    {% if user_reply_rules[user] %}
+                        {% for rule in user_reply_rules[user] %}
+                            <li>关键词: {{ rule['keyword'] }}</li>
+                        {% endfor %}
+                    {% else %}
+                        <li>回复指令：默认</li>
+                    {% endif %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

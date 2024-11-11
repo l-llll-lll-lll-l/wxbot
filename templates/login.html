@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login with WeChat</h1>
+    <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+    <p>Please scan the QR code to log in.</p>
+    <form action="{{ url_for('login', user_id=user_id) }}" method="post">
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>
