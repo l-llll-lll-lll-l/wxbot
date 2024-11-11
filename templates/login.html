@@ -1,16 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <style>
+        /* 页面居中布局和样式 */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        /* 容器样式 */
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            width: 100%;
+        }
+
+        /* 标题样式 */
+        h1 {
+            color: #007bff;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        /* 图片样式 */
+        img {
+            width: 100%;
+            max-width: 200px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        /* 提示文字样式 */
+        p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        /* 按钮样式 */
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Login with WeChat</h1>
-    <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
-    <p>Please scan the QR code to log in.</p>
-    <form action="{{ url_for('login', user_id=user_id) }}" method="post">
-        <button type="submit">Login</button>
-    </form>
+    <div class="container">
+        <h1>Login with WeChat</h1>
+        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+        <p>Please scan the QR code to log in.</p>
+        <form action="{{ url_for('login', user_id=user_id) }}" method="post">
+            <button type="submit">Login</button>
+        </form>
+    </div>
 </body>
+
 </html>

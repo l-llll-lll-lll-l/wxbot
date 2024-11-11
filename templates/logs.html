@@ -1,24 +1,125 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>日志部分</title>
-</head>
-<body>
-    <h1>机器人交互日志</h1>
-    <form method="post">
-        <label for="search_keyword">搜索日志:</label>
-        <input type="text" id="search_keyword" name="search_keyword">
-        <button type="submit">搜索</button>
-    </form>
+    <style>
+        /* 页面整体样式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            color: #333;
+        }
 
-    <h2>日志列表</h2>
-    <ul>
-        {% for log in logs %}
+        /* 主容器 */
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* 标题样式 */
+        h1 {
+            color: #007bff;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #555;
+            font-size: 20px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        /* 搜索表单样式 */
+        form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            margin-right: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 60%;
+            max-width: 300px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-left: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 日志列表样式 */
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>机器人交互日志</h1>
+        <form method="post">
+            <label for="search_keyword">搜索日志:</label>
+            <input type="text" id="search_keyword" name="search_keyword">
+            <button type="submit">搜索</button>
+        </form>
+
+        <h2>日志列表</h2>
+        <ul>
+            {% for log in logs %}
             <li>[{{ log.timestamp }}] 用户消息: {{ log.message }}, 机器人回复: {{ log.reply }}</li>
-        {% endfor %}
-    </ul>
-    <button onclick="location.href='/export_logs'">导出日志</button>
+            {% endfor %}
+        </ul>
+        <button onclick="location.href='/export_logs'">导出日志</button>
+    </div>
 </body>
+
 </html>
