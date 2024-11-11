@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,7 +18,6 @@
             color: #333;
         }
 
-        /* 主容器 */
         .container {
             background-color: #fff;
             padding: 30px;
@@ -30,7 +28,6 @@
             text-align: center;
         }
 
-        /* 标题样式 */
         h1 {
             color: #007bff;
             font-size: 24px;
@@ -44,82 +41,93 @@
             margin-bottom: 15px;
         }
 
-        /* 搜索表单样式 */
         form {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             margin-bottom: 20px;
         }
 
         label {
-            margin-right: 10px;
+            margin-bottom: 10px;
             font-size: 14px;
             color: #333;
         }
 
-        input[type="text"] {
+        select {
             padding: 8px;
+            margin: 5px 0;
             border: 1px solid #ddd;
             border-radius: 4px;
-            width: 60%;
+            width: 80%;
             max-width: 300px;
             font-size: 14px;
         }
 
-        button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            background-color: #007bff;
-            color: #fff;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-left: 10px;
+        .log-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            text-align: left;
+            padding: 0;
         }
 
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        /* 日志列表样式 */
-        ul {
+        .log-list ul {
             list-style-type: none;
             padding: 0;
             margin: 0;
-            text-align: left;
         }
 
-        li {
+        .log-list li {
             padding: 10px;
             border-bottom: 1px solid #ddd;
             font-size: 14px;
         }
 
-        li:last-child {
+        .log-list li:last-child {
             border-bottom: none;
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <h1>机器人交互日志</h1>
-        <form method="post">
-            <label for="search_keyword">搜索日志:</label>
-            <input type="text" id="search_keyword" name="search_keyword">
-            <button type="submit">搜索</button>
-        </form>
+
+        <label for="selected_user">选择用户:</label>
+        <select name="selected_user" id="selected_user" onchange="filterLogs()">
+            <option value="">全部用户</option>
+            {% for user in users %}
+            <option value="{{ user }}">{{ user }}</option>
+            {% endfor %}
+        </select>
 
         <h2>日志列表</h2>
-        <ul>
-            {% for log in logs %}
-            <li>[{{ log.timestamp }}] 用户消息: {{ log.message }}, 机器人回复: {{ log.reply }}</li>
-            {% endfor %}
-        </ul>
+        <div class="log-list">
+            <ul id="logList">
+                {% for log in logs %}
+                <li data-user="{{ log[1] }}">
+                    [{{ log[0] }}] 用户消息: {{ log[2] }}, 机器人回复: {{ log[3] }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
         <button onclick="location.href='/export_logs'">导出日志</button>
     </div>
-</body>
 
+    <script>
+        function filterLogs() {
+            const selectedUser = document.getElementById("selected_user").value;
+            const logs = document.querySelectorAll("#logList li");
+
+            logs.forEach(log => {
+                if (selectedUser === "" || log.getAttribute("data-user") === selectedUser) {
+                    log.style.display = "block";
+                } else {
+                    log.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
 </html>

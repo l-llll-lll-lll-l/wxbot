@@ -1,11 +1,30 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for, flash, session
+from flask import Flask, render_template, jsonify, request, redirect, url_for, flash, session, send_file
+import sqlite3
 import pyqrcode
 import time
 import random
 import json
+import csv
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+
+# 初始化数据库并创建 logs 表
+def init_db():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS logs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user TEXT NOT NULL,
+                        message TEXT NOT NULL,
+                        reply TEXT NOT NULL,
+                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )''')
+    conn.commit()
+    conn.close()
+
+# 调用初始化函数
+init_db()
 
 # 存储二维码和用户状态
 qrcode_data = {}
@@ -14,7 +33,6 @@ qr_expiry_time = 300  # 二维码过期时间（秒）
 # 用户的回复规则
 user_reply_rules = {}
 default_reply_rule = {'keyword': '你好', 'response': '你好，有什么我可以帮助你的吗？'}
-logs = []  # 存储日志信息
 
 # 加载用户
 def load_users_from_file():
@@ -26,11 +44,23 @@ def generate_qr_code(user_id):
     qr = pyqrcode.create(user_id)
     return qr.png_as_base64_str(scale=5)
 
+def add_log(user, message, reply):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO logs (user, message, reply) VALUES (?, ?, ?)', (user, message, reply))
+    conn.commit()
+    conn.close()
+
 def robot_message(input_text):
-    for rule in user_reply_rules.get(session.get('user_id'), []):
+    user_id = session.get('user_id')
+    for rule in user_reply_rules.get(user_id, []):
         if rule['keyword'] in input_text:
-            return rule['response']
-    return "抱歉，我无法理解您的请求。"
+            reply = rule['response']
+            add_log(user_id, input_text, reply)
+            return reply
+    reply = "抱歉，我无法理解您的请求。"
+    add_log(user_id, input_text, reply)
+    return reply
 
 @app.route('/')
 def index():
@@ -76,7 +106,6 @@ def reply_settings():
 
         if selected_user and keyword:
             user_reply_rules[selected_user].append({'keyword': keyword, 'response': "抱歉，我无法理解您的请求。"})
-            logs.append(f"Added reply rule for user {selected_user}: {keyword}")
             flash('回复规则已添加', 'success')
         else:
             flash('请填写所有字段', 'error')
@@ -85,7 +114,31 @@ def reply_settings():
 
 @app.route('/logs')
 def logs_page():
-    return render_template('logs.html', logs=logs)
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT DISTINCT user FROM logs')
+    users = [row[0] for row in cursor.fetchall()]
+
+    cursor.execute('SELECT timestamp, user, message, reply FROM logs ORDER BY timestamp DESC')
+    logs = cursor.fetchall()
+    conn.close()
+
+    return render_template('logs.html', users=users, logs=logs)
+
+@app.route('/export_logs')
+def export_logs():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT timestamp, user, message, reply FROM logs')
+    logs = cursor.fetchall()
+    conn.close()
+
+    with open('logs.csv', 'w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Timestamp', 'User', 'Message', 'Reply'])
+        writer.writerows(logs)
+
+    return send_file('logs.csv', as_attachment=True)
 
 @app.route('/robot-management')
 def robot_management():
@@ -96,7 +149,6 @@ def robot_management():
 @app.route('/reply/<input_text>')
 def get_reply(input_text):
     reply = robot_message(input_text)
-    logs.append(f"User input: {input_text}, Reply: {reply}")
     return jsonify({'reply': reply})
 
 if __name__ == '__main__':
