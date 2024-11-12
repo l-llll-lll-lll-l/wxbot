@@ -1,8 +1,9 @@
 from core.models import AIModel
+from const import *
 
 if __name__ == "__main__":
     # Initialize the model
-    model_path = "./qwen2.5_0.5b/Qwen2.5-0.5B-Instruct-q0f16-MLC"
+
     ai_model = AIModel(model_path)
 
     ai_model.update_known_info([ # same not useful on qwen2.5 0.5b -> (it dosent understand the command 4)
