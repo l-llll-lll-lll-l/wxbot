@@ -12,7 +12,7 @@ class AIModel:
         self.engine = MLCEngine(self.model_path)
         self.known_info = []
         self.memory_size = memory_size
-        self.chat_history = []
+        # self.chat_history = [] not support yet
 
     def chat(self, message, stream=True):
         """
@@ -25,11 +25,14 @@ class AIModel:
         Yields:
             str: Each segment of the response as it is generated.
         """
-        self.chat_history.append({"role": "user", "content": message})
-        if len(self.chat_history) > self.memory_size:
-            self.chat_history = self.chat_history[-self.memory_size:]
+        # self.chat_history.append({"role": "user", "content": message})
+        # if len(self.chat_history) > self.memory_size:
+        #     self.chat_history = self.chat_history[-self.memory_size:]
 
-        messages = [{"role": "system", "content": '\n'.join(self.known_info)}] + self.chat_history # history same not useful on qwen2.5 0.5b ->（has effect but not so well）
+        # messages = [{"role": "system", "content": '\n'.join(self.known_info)}] + self.chat_history # history same not useful on qwen2.5 0.5b ->（has effect but not so well）
+        
+        messages = [{"role": "system", "content": '\n'.join(self.known_info)}] + [{"role": "user", "content": message}]
+        
         for response in self.engine.chat.completions.create(messages=messages, model=self.model_path, stream=stream):
             for choice in response.choices:
                 yield choice.delta.content

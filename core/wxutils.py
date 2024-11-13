@@ -1,7 +1,6 @@
 from wxauto import WeChat
 import time
 from models import AIModel
-import sqlite3
 import time
 import signal
 from database import DatabaseManager
@@ -26,6 +25,7 @@ class AutoReplyBot:
         """添加监听的群组或用户"""
         for chat_name in chat_list:
             self.wx.AddListenChat(who=chat_name)
+            print(f"Add {chat_name} to listen list.")
 
     def auto_reply(self):
         """自动回复消息"""
@@ -63,12 +63,10 @@ class AutoReplyBot:
 if __name__ == "__main__":
     bot = AutoReplyBot(model_path="./qwen2.5_0.5b/Qwen2.5-0.5B-Instruct-q0f16-MLC", db_path="bot.db")
     print("Bot is setting listener... it may take a few mins.(wait until all the mumbers below are loaded)")
-    # 设置需要监听的群组或用户列表
-    listen_list = [
-        '罗...',
-        "测试"
-    ]
-    bot.add_listen_chat(listen_list)
+    
+    db = DatabaseManager("bot.db")
+    
+    bot.add_listen_chat(db.get_users_for_bot("bot4"))
 
     # 设置信号处理程序
     signal.signal(signal.SIGINT, bot.signal_handler)

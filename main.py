@@ -1,17 +1,15 @@
 from core.models import AIModel
 from const import *
+from core.database import DatabaseManager
 
 if __name__ == "__main__":
     # Initialize the model
 
     ai_model = AIModel(model_path)
 
-    ai_model.update_known_info([ # same not useful on qwen2.5 0.5b -> (it dosent understand the command 4)
-        "你是友善的ai助手",
-        "用户需要了解关于编程语言的信息。",
-        "用户是编程初学者。",
-        "注意，当有人问你python编程语言之外的问题你要不予回答"
-    ])
+    db = DatabaseManager(db_path)
+    
+    ai_model.update_known_info(db.get_bot("bot4")["prompts"])
     
     user_message = input("prompt:")
     # Get the chat response
