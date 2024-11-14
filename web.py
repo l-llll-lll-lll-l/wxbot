@@ -1,13 +1,10 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for, flash, session, send_file
 import sqlite3
-import pyqrcode
 import time
 import random
-import json
 import csv
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
 
 
 # 初始化数据库并创建 logs 表和 robot_user_relations 表
@@ -35,10 +32,6 @@ def init_db():
 # 调用初始化函数
 init_db()
 
-# 存储二维码和用户状态
-qrcode_data = {}
-qr_expiry_time = 300  # 二维码过期时间（秒）
-
 # 用户的回复规则
 user_reply_rules = {}
 default_reply_rule = {'keyword': '你好', 'response': '你好，有什么我可以帮助你的吗？'}
@@ -50,19 +43,12 @@ def load_users_from_file():
         users = file.readlines()
     return [user.strip() for user in users]
 
-
-def generate_qr_code(user_id):
-    qr = pyqrcode.create(user_id)
-    return qr.png_as_base64_str(scale=5)
-
-
 def add_log(user, message, reply):
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute('INSERT INTO logs (user, message, reply) VALUES (?, ?, ?)', (user, message, reply))
     conn.commit()
     conn.close()
-
 
 def robot_message(input_text):
     user_id = session.get('user_id')
@@ -75,40 +61,9 @@ def robot_message(input_text):
     add_log(user_id, input_text, reply)
     return reply
 
-
 @app.route('/')
-def index():
-    user_id = str(random.randint(1000, 9999))
-    qr_code = generate_qr_code(user_id)
-    qrcode_data[user_id] = {'qr_code': qr_code, 'timestamp': time.time(), 'logged_in': False}
-    return render_template('login.html', qr_code=qr_code, user_id=user_id)
-
-
-@app.route('/check_login/<user_id>', methods=['GET'])
-def check_login(user_id):
-    if user_id in qrcode_data:
-        if time.time() - qrcode_data[user_id]['timestamp'] < qr_expiry_time:
-            if qrcode_data[user_id]['logged_in']:
-                return jsonify({'status': 'logged_in'})
-            return jsonify({'status': 'valid'})
-    return jsonify({'status': 'invalid'})
-
-
-@app.route('/login/<user_id>', methods=['POST'])
-def login(user_id):
-    if user_id in qrcode_data:
-        qrcode_data[user_id]['logged_in'] = True
-        session['user_id'] = user_id
-        return redirect(url_for('dashboard'))
-    return redirect(url_for('index'))
-
-
-@app.route('/dashboard')
 def dashboard():
-    if 'user_id' not in session:
-        return redirect(url_for('index'))
-    return render_template('dashboard.html', user_id=session['user_id'])
-
+    return render_template('dashboard.html')
 
 @app.route('/reply-settings', methods=['GET', 'POST'])
 def reply_settings():
@@ -188,13 +143,6 @@ def robot_management():
         return jsonify({'status': 'success'}), 200
 
     return render_template('robot_management.html', robots=robots, users=users)
-
-
-@app.route('/reply/<input_text>')
-def get_reply(input_text):
-    reply = robot_message(input_text)
-    return jsonify({'reply': reply})
-
 
 if __name__ == '__main__':
     app.run(debug=True)
