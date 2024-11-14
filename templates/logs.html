@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日志部分</title>
+    <style>
+        /* 页面整体样式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #007bff;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #555;
+            font-size: 20px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        select {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 80%;
+            max-width: 300px;
+            font-size: 14px;
+        }
+
+        .log-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            text-align: left;
+            padding: 0;
+        }
+
+        .log-list ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .log-list li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .log-list li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>机器人交互日志</h1>
+
+        <label for="selected_user">选择用户:</label>
+        <select name="selected_user" id="selected_user" onchange="filterLogs()">
+            <option value="">全部用户</option>
+            {% for user in users %}
+            <option value="{{ user }}">{{ user }}</option>
+            {% endfor %}
+        </select>
+
+        <h2>日志列表</h2>
+        <div class="log-list">
+            <ul id="logList">
+                {% for log in logs %}
+                <li data-user="{{ log[1] }}">
+                    [{{ log[0] }}] 用户消息: {{ log[2] }}, 机器人回复: {{ log[3] }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <button onclick="location.href='/export_logs'">导出日志</button>
+    </div>
+
+    <script>
+        function filterLogs() {
+            const selectedUser = document.getElementById("selected_user").value;
+            const logs = document.querySelectorAll("#logList li");
+
+            logs.forEach(log => {
+                if (selectedUser === "" || log.getAttribute("data-user") === selectedUser) {
+                    log.style.display = "block";
+                } else {
+                    log.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

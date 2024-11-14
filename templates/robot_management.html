@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微信机器人管理</title>
+    <style>
+        /* 页面整体样式 */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* 主容器 */
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 { color: #007bff; margin-bottom: 20px; }
+
+        form { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 20px; }
+
+        label { margin-bottom: 10px; font-weight: bold; color: #555; }
+
+        select, .user-list { width: 100%; padding: 8px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+
+        button {
+            padding: 10px; width: 100%; border: none; border-radius: 4px; background-color: #007bff; color: #fff; font-size: 16px;
+            cursor: pointer; transition: background-color 0.3s ease;
+        }
+
+        button:hover { background-color: #0056b3; }
+
+        .back-button { background-color: #6c757d; margin-top: 15px; }
+
+        .back-button:hover { background-color: #5a6268; }
+
+        .user-list { display: none; }
+
+        .user-search { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>微信机器人管理</h1>
+
+        <form method="post" action="/select-robot" id="robot-form">
+            <label for="robot">选择机器人:</label>
+            <select id="robot" name="robot" onchange="showUserList()">
+                <option value="">请选择机器人</option>
+                {% for robot in robots %}
+                <option value="{{ robot }}">{{ robot }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">确认选择</button>
+        </form>
+
+        <div class="user-list" id="user-list">
+            <label for="user-search">搜索用户:</label>
+            <input type="text" id="user-search" class="user-search" placeholder="输入用户名" oninput="filterUsers()">
+            <label for="users">选择关联用户:</label>
+            <select id="users" name="users" multiple size="5">
+                {% for user in users %}
+                <option value="{{ user }}">{{ user }}</option>
+                {% endfor %}
+            </select>
+            <button onclick="submitUserAssociations()">更新关联</button>
+        </div>
+
+        <button class="back-button" onclick="location.href='/dashboard'">返回仪表板</button>
+    </div>
+
+    <script>
+        function showUserList() {
+            const robotSelect = document.getElementById("robot");
+            const userList = document.getElementById("user-list");
+
+            if (robotSelect.value) {
+                userList.style.display = "block";
+            } else {
+                userList.style.display = "none";
+            }
+        }
+
+        function filterUsers() {
+            const searchValue = document.getElementById("user-search").value.toLowerCase();
+            const userOptions = document.getElementById("users").options;
+
+            for (let i = 0; i < userOptions.length; i++) {
+                const userName = userOptions[i].text.toLowerCase();
+                if (userName.includes(searchValue)) {
+                    userOptions[i].style.display = "block";
+                } else {
+                    userOptions[i].style.display = "none";
+                }
+            }
+        }
+
+        function submitUserAssociations() {
+            const selectedRobot = document.getElementById("robot").value;
+            const selectedUsers = Array.from(document.getElementById("users").selectedOptions).map(option => option.value);
+
+            if (!selectedRobot) {
+                alert("请先选择一个机器人！");
+                return;
+            }
+
+            fetch("/robot-management", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ robot: selectedRobot, users: selectedUsers })
+            }).then(response => {
+                if (response.ok) {
+                    alert("用户关联更新成功！");
+                } else {
+                    alert("更新失败，请重试。");
+                }
+            }).catch(error => {
+                console.error("Error:", error);
+                alert("请求出错，请稍后重试。");
+            });
+        }
+    </script>
+</body>
+</html>
