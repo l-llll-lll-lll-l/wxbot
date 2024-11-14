@@ -1,11 +1,8 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for, flash, session, send_file
+from flask import Flask, render_template, jsonify, request, flash, session, send_file
 import sqlite3
-import time
-import random
 import csv
 
 app = Flask(__name__)
-
 
 # 初始化数据库并创建 logs 表和 robot_user_relations 表
 def init_db():
@@ -42,24 +39,6 @@ def load_users_from_file():
     with open('users.txt', 'r', encoding='utf-8') as file:
         users = file.readlines()
     return [user.strip() for user in users]
-
-def add_log(user, message, reply):
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('INSERT INTO logs (user, message, reply) VALUES (?, ?, ?)', (user, message, reply))
-    conn.commit()
-    conn.close()
-
-def robot_message(input_text):
-    user_id = session.get('user_id')
-    for rule in user_reply_rules.get(user_id, []):
-        if rule['keyword'] in input_text:
-            reply = rule['response']
-            add_log(user_id, input_text, reply)
-            return reply
-    reply = "抱歉，我无法理解您的请求。"
-    add_log(user_id, input_text, reply)
-    return reply
 
 @app.route('/')
 def dashboard():
