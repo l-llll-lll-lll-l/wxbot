@@ -2,4 +2,5 @@ qwen2.5_0.5b/
 model_lib/
 model_weights/
 .idea/
+bot.db
 **/__pycache__/
