@@ -2,7 +2,9 @@ import dashboard
 import threading
 from core.wxutils import AutoReplyBot
 import signal
-import sys
+import os
+os.environ['MLC_LLM_HOME'] = "./"
+
 
 def run_web():
     dashboard.app.run()
