@@ -22,7 +22,6 @@ def dashboard():
 @app.route('/reply-settings', methods=['GET', 'POST'])
 def reply_settings():
     bots = [ (bot['name'],bot['prompts']) for bot in db.list_bots()]
-
     for name,prompts in bots:
         if prompts:
             user_reply_rules[name] = prompts
