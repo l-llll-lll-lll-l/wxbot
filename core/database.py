@@ -11,7 +11,7 @@ class DatabaseManager:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS messages (
+            CREATE TABLE IF NOT EXISTS logs (
                 id INTEGER PRIMARY KEY,
                 time TEXT,
                 sender TEXT,
@@ -34,18 +34,71 @@ class DatabaseManager:
                 PRIMARY KEY (bot_name, user_name)
             )
         ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY,
+                username TEXT UNIQUE
+            )
+        ''')
         conn.commit()
         conn.close()
-
-    def assign_user_to_bot(self, bot_name, user_name):
-        """将用户分配给机器人"""
+        
+    def get_all_users(self):
+        """获取所有用户"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO bot_users (bot_name, user_name) VALUES (?, ?)
-        ''', (bot_name, user_name))
-        conn.commit()
+        cursor.execute('SELECT * FROM users')
+        users = cursor.fetchall()
         conn.close()
+        return [user[1] for user in users]
+    
+    def get_logs_basic(self, **kwargs):
+        """根据条件获取消息列表"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        # 构建基础查询语句
+        query = 'SELECT * FROM logs'
+        
+        # 构建条件语句
+        conditions = []
+        params = []
+        for key, value in kwargs.items():
+            conditions.append(f'{key} = ?')
+            params.append(value)
+        
+        if conditions:
+            query += ' WHERE ' + ' AND '.join(conditions)
+        
+        cursor.execute(query, tuple(params))
+        messages = cursor.fetchall()
+        conn.close()
+        return [{'id': msg[0], 'time': msg[1], 'sender': msg[2], 'receiver': msg[3], 'content': msg[4], 'msg_type': msg[5]} for msg in messages]
+
+    def get_logs_order_by_time(self, **kwargs):
+        """根据条件获取消息列表，并按时间排序"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        # 构建基础查询语句
+        query = 'SELECT * FROM logs'
+        
+        # 构建条件语句
+        conditions = []
+        params = []
+        for key, value in kwargs.items():
+            conditions.append(f'{key} = ?')
+            params.append(value)
+        
+        if conditions:
+            query += ' WHERE ' + ' AND '.join(conditions)
+        
+        query += ' ORDER BY time'
+        
+        cursor.execute(query, tuple(params))
+        messages = cursor.fetchall()
+        conn.close()
+        return [{'id': msg[0], 'time': msg[1], 'sender': msg[2], 'receiver': msg[3], 'content': msg[4], 'msg_type': msg[5]} for msg in messages]
 
     def get_users_for_bot(self, bot_name):
         """获取某个机器人负责的所有用户"""
@@ -64,39 +117,32 @@ class DatabaseManager:
         conn.commit()
         conn.close()
 
-    def save_message(self, time, sender, receiver, content, msg_type):
+    def remove_user_whatever_bot(self, user_name):
+        """从所有机器人的监听列表中移除用户"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM bot_users WHERE user_name = ?', (user_name,))
+        conn.commit()
+        conn.close()
+
+    def save_log(self, time, sender, receiver, content, msg_type):
         """保存消息到数据库"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO messages (time, sender, receiver, content, msg_type) VALUES (?, ?, ?, ?, ?)
+            INSERT INTO logs (time, sender, receiver, content, msg_type) VALUES (?, ?, ?, ?, ?)
         ''', (time, sender, receiver, content, msg_type))
         conn.commit()
         conn.close()
-        
-    def get_messages(self, **kwargs):
-        """根据条件获取消息列表"""
+    
+    def save_user(self, username):
+        """保存用户到数据库"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        
-        # 构建基础查询语句
-        query = 'SELECT * FROM messages'
-        
-        # 构建条件语句
-        conditions = []
-        params = []
-        for key, value in kwargs.items():
-            conditions.append(f'{key} = ?')
-            params.append(value)
-        
-        if conditions:
-            query += ' WHERE ' + ' AND '.join(conditions)
-        
-        cursor.execute(query, tuple(params))
-        messages = cursor.fetchall()
+        cursor.execute('INSERT INTO users (username) VALUES (?)', (username,))
+        conn.commit()
         conn.close()
-        return [{'id': msg[0], 'time': msg[1], 'sender': msg[2], 'receiver': msg[3], 'content': msg[4], 'msg_type': msg[5]} for msg in messages]
-
+        
     def save_bot(self, name, prompts):
         """保存机器人信息到数据库"""
         conn = sqlite3.connect(self.db_path)
@@ -145,7 +191,28 @@ class DatabaseManager:
         conn.close()
         return [{'id': bot[0], 'name': bot[1], 'prompts': json.loads(bot[2])} for bot in bots]
     
+    def assign_user_to_bot(self, bot_name, user_name):
+        """将用户分配给机器人"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO bot_users (bot_name, user_name) VALUES (?, ?)
+        ''', (bot_name, user_name))
+        conn.commit()
+        conn.close()
+    
 if __name__ == "__main__":
-    # test get messages
+    # generate a test data info
     db = DatabaseManager("bot.db")
-    print(db.get_messages(sender='bot'))
+    db.save_user("罗...")
+    db.save_user("测试")
+    db.save_user("Charlie")
+    
+    db.save_bot("bot1", {"greeting": "Hello, how can I help you?"})
+    db.save_bot("bot2", {"greeting": "Hi, what can I do for you?"})
+    
+    db.assign_user_to_bot("bot1", "罗...")
+    db.assign_user_to_bot("bot1", "测试")
+    db.assign_user_to_bot("bot2", "Charlie")
+    
+    

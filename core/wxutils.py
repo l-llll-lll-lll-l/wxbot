@@ -39,7 +39,7 @@ class AutoReplyBot:
                     msgtype = msg.type  # 获取消息类型
                     content = msg.content  # 获取消息内容
                     print(f'【{who}】：{content}')
-                    self.db_manager.save_message(time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), 
+                    self.db_manager.save_log(time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), 
                                                 sender=who, 
                                                 receiver='bot', 
                                                 content=content, 
@@ -47,7 +47,7 @@ class AutoReplyBot:
                     if msgtype == 'friend':  # 如果是好友发来的消息，则回复
                         reply_content = self.reply(content)
                         chat.SendMsg(reply_content)
-                        self.db_manager.save_message(time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), 
+                        self.db_manager.save_log(time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), 
                                                     sender='bot', 
                                                     receiver=who, 
                                                     content=reply_content, 
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     
     db = DatabaseManager("bot.db")
     
-    bot.add_listen_chat(db.get_users_for_bot("bot4"))
+    bot.add_listen_chat(db.get_users_for_bot("bot1"))
 
     # 设置信号处理程序
     signal.signal(signal.SIGINT, bot.signal_handler)

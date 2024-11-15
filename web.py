@@ -1,33 +1,11 @@
 from flask import Flask, render_template, jsonify, request, flash, session, send_file
 import sqlite3
 import csv
+from core.database import DatabaseManager
 
 app = Flask(__name__)
 
-# 初始化数据库并创建 logs 表和 robot_user_relations 表
-def init_db():
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    # 创建日志表
-    cursor.execute('''CREATE TABLE IF NOT EXISTS logs (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        user TEXT NOT NULL,
-                        message TEXT NOT NULL,
-                        reply TEXT NOT NULL,
-                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-                    )''')
-    # 创建机器人和用户的关系表
-    cursor.execute('''CREATE TABLE IF NOT EXISTS robot_user_relations (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        robot TEXT NOT NULL,
-                        user TEXT NOT NULL
-                    )''')
-    conn.commit()
-    conn.close()
-
-
-# 调用初始化函数
-init_db()
+db = DatabaseManager('bot.db')
 
 # 用户的回复规则
 user_reply_rules = {}
@@ -36,9 +14,7 @@ default_reply_rule = {'keyword': '你好', 'response': '你好，有什么我可
 
 # 加载用户
 def load_users_from_file():
-    with open('users.txt', 'r', encoding='utf-8') as file:
-        users = file.readlines()
-    return [user.strip() for user in users]
+    return db.get_all_users()
 
 @app.route('/')
 def dashboard():
@@ -67,39 +43,19 @@ def reply_settings():
 
 @app.route('/logs')
 def logs_page():
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT DISTINCT user FROM logs')
-    users = [row[0] for row in cursor.fetchall()]
-
-    cursor.execute('SELECT timestamp, user, message, reply FROM logs ORDER BY timestamp DESC')
-    logs = cursor.fetchall()
-    conn.close()
-
+    msgs = db.get_logs_order_by_time()
+    users_s = [ log['sender'] for log in msgs ]
+    users_r = [ log['receiver'] for log in msgs ]
+    # combine two lists and remove duplicates
+    users = list(set(users_s + users_r))
+    logs = [ msg['content'] for msg in msgs ]
     return render_template('logs.html', users=users, logs=logs)
-
-
-@app.route('/export_logs')
-def export_logs():
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT timestamp, user, message, reply FROM logs')
-    logs = cursor.fetchall()
-    conn.close()
-
-    with open('logs.csv', 'w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Timestamp', 'User', 'Message', 'Reply'])
-        writer.writerows(logs)
-
-    return send_file('logs.csv', as_attachment=True)
-
 
 # 更新机器人和用户关联的路由
 @app.route('/robot-management', methods=['GET', 'POST'])
 def robot_management():
     # 机器人列表和用户列表
-    robots = ["Robot1", "Robot2", "Robot3"]
+    robots = db.list_bots()
     users = load_users_from_file()
 
     if request.method == 'POST':
@@ -109,15 +65,9 @@ def robot_management():
         selected_users = data.get('users')
 
         # 清除旧的关联
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute('DELETE FROM robot_user_relations WHERE robot = ?', (selected_robot,))
-
-        # 插入新的关联
         for user in selected_users:
-            cursor.execute('INSERT INTO robot_user_relations (robot, user) VALUES (?, ?)', (selected_robot, user))
-        conn.commit()
-        conn.close()
+            db.remove_user_whatever_bot(user)
+            db.assign_user_to_bot(selected_robot, user)
 
         return jsonify({'status': 'success'}), 200
 
