@@ -1,9 +1,8 @@
 from flask import Flask, render_template, jsonify, request, flash, session, send_file
-import sqlite3
-import csv
 from core.database import DatabaseManager
 
 app = Flask(__name__)
+app.secret_key = 'secret_key'
 
 db = DatabaseManager('bot.db')
 
@@ -22,23 +21,28 @@ def dashboard():
 
 @app.route('/reply-settings', methods=['GET', 'POST'])
 def reply_settings():
-    users = load_users_from_file()
+    bots = [ (bot['name'],bot['prompts']) for bot in db.list_bots()]
 
-    for user in users:
-        if user not in user_reply_rules:
-            user_reply_rules[user] = []
+    for name,prompts in bots:
+        if prompts:
+            user_reply_rules[name] = prompts
+        else:
+            user_reply_rules[name] = None
 
     if request.method == 'POST':
-        selected_user = request.form.get('selected_user')
+        selected_bot = request.form.get('selected_bot')
         keyword = request.form.get('keyword')
 
-        if selected_user and keyword:
-            user_reply_rules[selected_user].append({'keyword': keyword, 'response': "抱歉，我无法理解您的请求。"})
+        if selected_bot and keyword:
+            user_reply_rules[selected_bot] = keyword
+            db.update_bot(selected_bot, keyword)
             flash('回复规则已添加', 'success')
         else:
-            flash('请填写所有字段', 'error')
+            user_reply_rules[selected_bot] = None
+            db.update_bot(selected_bot, None)
+            flash('回复规则已删除', 'success')
 
-    return render_template('reply_settings.html', users=user_reply_rules.keys(), user_reply_rules=user_reply_rules)
+    return render_template('reply_settings.html', bots=user_reply_rules.keys(), user_reply_rules=user_reply_rules)
 
 
 @app.route('/logs')

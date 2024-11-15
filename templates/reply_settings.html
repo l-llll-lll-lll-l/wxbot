@@ -101,29 +101,27 @@
     <div class="container">
         <h1>设置回复规则</h1>
         <form method="POST">
-            <label for="selected_user">选择用户:</label>
-            <select name="selected_user" id="selected_user">
-                {% for user in users %}
-                <option value="{{ user }}">{{ user }}</option>
+            <label for="selected_bot">选择机器人:</label>
+            <select name="selected_bot" id="selected_bot">
+                {% for bot in bots %}
+                <option value="{{ bot }}">{{ bot }}</option>
                 {% endfor %}
             </select>
 
             <label for="keyword">回复指令:</label>
-            <input type="text" name="keyword" required>
+            <input type="text" name="keyword" >
 
             <button type="submit">添加回复规则</button>
         </form>
 
         <h2>现有回复规则</h2>
         <ul>
-            {% for user in users %}
+            {% for bot in bots %}
             <li>
-                <strong>{{ user }} 的规则:</strong>
+                <strong>{{ bot }} 的规则:</strong>
                 <ul class="rule-list">
-                    {% if user_reply_rules[user] %}
-                    {% for rule in user_reply_rules[user] %}
-                    <li>关键词: {{ rule['keyword'] }}</li>
-                    {% endfor %}
+                    {% if user_reply_rules[bot] %}
+                    <li>提示词: {{ user_reply_rules[bot] }}</li>
                     {% else %}
                     <li>回复指令：默认</li>
                     {% endif %}

@@ -164,16 +164,14 @@ class DatabaseManager:
             return {'id': bot[0], 'name': bot[1], 'prompts': json.loads(bot[2])}
         return None
 
-    def update_bot(self, id, name, prompts):
+    def update_bot(self, name, prompts):
         """更新机器人信息"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        cursor.execute('''
-            UPDATE bots SET name = ?, prompts = ? WHERE id = ?
-        ''', (name, json.dumps(prompts), id))
+        cursor.execute('UPDATE bots SET prompts = ? WHERE name = ?', (json.dumps(prompts), name))
         conn.commit()
         conn.close()
-
+        
     def delete_bot(self, id):
         """删除机器人信息"""
         conn = sqlite3.connect(self.db_path)
@@ -202,7 +200,7 @@ class DatabaseManager:
         conn.close()
     
 if __name__ == "__main__":
-    # generate a test data info
+    # generate a test database
     db = DatabaseManager("bot.db")
     db.save_user("罗...")
     db.save_user("测试")
@@ -220,3 +218,10 @@ if __name__ == "__main__":
     db.save_log(time="2021-08-01 12:00:02", sender="测试", receiver="bot1", content="你好", msg_type="friend")
     db.save_log(time="2021-08-01 12:00:03", sender="bot1", receiver="测试", content="Hello", msg_type="reply")
     
+    # test update_bot
+    # db = DatabaseManager("bot.db")
+    # bot = db.get_bot("bot1")
+    # print(bot)
+    # db.update_bot("bot1", {"greeting": "Hi, how can I help?"})
+    # bot = db.get_bot("bot1")
+    # print(bot)
