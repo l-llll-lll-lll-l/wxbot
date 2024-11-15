@@ -88,10 +88,3 @@ class AutoReplyBot:
             rst.extend(user)
         rst = list(set(rst)) # 正常来说没有重复，但是还是保守的加入去重
         return rst
-    
-if __name__ == "__main__":
-    bot = AutoReplyBot(model_path="./qwen2.5_0.5b/Qwen2.5-0.5B-Instruct-q0f16-MLC", db_path="bot.db")
-    # 设置信号处理程序（用于Ctrl+C退出）
-    signal.signal(signal.SIGINT, bot.signal_handler)
-    print("Bot is running...")
-    bot.auto_reply()

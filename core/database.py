@@ -216,30 +216,3 @@ class DatabaseManager:
         ''', (bot_name, user_name))
         conn.commit()
         conn.close()
-    
-if __name__ == "__main__":
-    # generate a test database
-    db = DatabaseManager("bot.db")
-    db.save_user("罗...")
-    db.save_user("测试")
-    db.save_user("Charlie")
-    
-    db.save_bot("bot1", {"greeting": "Hello, how can I help you?"})
-    db.save_bot("bot2", {"greeting": "Hi, what can I do for you?"})
-    
-    db.assign_user_to_bot("bot1", "罗...")
-    db.assign_user_to_bot("bot1", "测试")
-    db.assign_user_to_bot("bot2", "Charlie")
-    
-    db.save_log(time="2021-08-01 12:00:00", sender="罗...", receiver="bot1", content="你好", msg_type="friend")
-    db.save_log(time="2021-08-01 12:00:01", sender="bot1", receiver="罗...", content="Hello", msg_type="reply")
-    db.save_log(time="2021-08-01 12:00:02", sender="测试", receiver="bot1", content="你好", msg_type="friend")
-    db.save_log(time="2021-08-01 12:00:03", sender="bot1", receiver="测试", content="Hello", msg_type="reply")
-    
-    # test update_bot
-    # db = DatabaseManager("bot.db")
-    # bot = db.get_bot("bot1")
-    # print(bot)
-    # db.update_bot("bot1", {"greeting": "Hi, how can I help?"})
-    # bot = db.get_bot("bot1")
-    # print(bot)
