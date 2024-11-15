@@ -109,6 +109,15 @@ class DatabaseManager:
         conn.close()
         return [user[0] for user in users]
 
+    def get_bot_for_user(self, user_name):
+        """获取某个用户的对应的机器人（一个用户只对应一个机器人）"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT bot_name FROM bot_users WHERE user_name = ?', (user_name,))
+        bot = cursor.fetchone()
+        conn.close()
+        return bot[0] if bot else None
+
     def remove_user_from_bot(self, bot_name, user_name):
         """从机器人的监听列表中移除用户"""
         conn = sqlite3.connect(self.db_path)

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, flash, session, send_file
+from flask import Flask, render_template, jsonify, request, flash
 from core.database import DatabaseManager
 
 app = Flask(__name__)
@@ -58,8 +58,8 @@ def logs_page():
 @app.route('/robot-management', methods=['GET', 'POST'])
 def robot_management():
     # 机器人列表和用户列表
-    robots = db.list_bots()
-    users = load_users_from_file()
+    robots = [bot['name'] for bot in db.list_bots()]
+    users = [{"name":user,"bot":db.get_bot_for_user(user)} for user in load_users_from_file()]
 
     if request.method == 'POST':
         # 获取机器人和用户的关联信息
@@ -71,10 +71,17 @@ def robot_management():
         for user in selected_users:
             db.remove_user_whatever_bot(user)
             db.assign_user_to_bot(selected_robot, user)
-
-        return jsonify({'status': 'success'}), 200
+            
+        return jsonify({'message': '关联已更新'})
 
     return render_template('robot_management.html', robots=robots, users=users)
+
+
+@app.route('/create-robot', methods=['POST'])
+def create_robot():
+    robot_name = request.form.get('robot_name')
+    db.save_bot(robot_name, None)
+    return '机器人创建请求已收到', 200
 
 if __name__ == '__main__':
     app.run(debug=True)
