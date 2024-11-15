@@ -1,5 +1,4 @@
 import sqlite3
-import json
 
 class DatabaseManager:
     def __init__(self, db_path):
@@ -152,13 +151,23 @@ class DatabaseManager:
         conn.commit()
         conn.close()
         
+    def reset_users_with_list(self, users):
+        """重置用户表并用一个列表覆写"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM users')
+        for user in users:
+            cursor.execute('INSERT INTO users (username) VALUES (?)', (user,))
+        conn.commit()
+        conn.close()
+        
     def save_bot(self, name, prompts):
         """保存机器人信息到数据库"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO bots (name, prompts) VALUES (?, ?)
-        ''', (name, json.dumps(prompts)))
+        ''', (name, prompts))
         conn.commit()
         conn.close()
 
@@ -170,22 +179,22 @@ class DatabaseManager:
         bot = cursor.fetchone()
         conn.close()
         if bot:
-            return {'id': bot[0], 'name': bot[1], 'prompts': json.loads(bot[2])}
+            return {'id': bot[0], 'name': bot[1], 'prompts': bot[2]}
         return None
 
     def update_bot(self, name, prompts):
         """更新机器人信息"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        cursor.execute('UPDATE bots SET prompts = ? WHERE name = ?', (json.dumps(prompts), name))
+        cursor.execute('UPDATE bots SET prompts = ? WHERE name = ?', (prompts, name))
         conn.commit()
         conn.close()
         
-    def delete_bot(self, id):
+    def delete_bot(self, name):
         """删除机器人信息"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        cursor.execute('DELETE FROM bots WHERE id = ?', (id,))
+        cursor.execute('DELETE FROM bots WHERE name = ?', (name,))
         conn.commit()
         conn.close()
 
@@ -196,7 +205,7 @@ class DatabaseManager:
         cursor.execute('SELECT * FROM bots')
         bots = cursor.fetchall()
         conn.close()
-        return [{'id': bot[0], 'name': bot[1], 'prompts': json.loads(bot[2])} for bot in bots]
+        return [{'id': bot[0], 'name': bot[1], 'prompts': bot[2]} for bot in bots]
     
     def assign_user_to_bot(self, bot_name, user_name):
         """将用户分配给机器人"""

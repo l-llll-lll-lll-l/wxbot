@@ -50,6 +50,9 @@
         .user-list { display: none; }
 
         .user-search { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+
+        #remove-robot { background-color: #dc3545; margin-top: 15px; }
+
     </style>
 </head>
 
@@ -78,6 +81,7 @@
             <button onclick="submitUserAssociations()">更新关联</button>
         </div>
         <button type="submit" id="new-robot-form">创建机器人</button>
+        <button type="submit" id="remove-robot">删除机器人</button>
         <button class="back-button" onclick="location.href='/'">返回仪表板</button>
     </div>
 
@@ -169,8 +173,35 @@
                 alert('机器人名称不能为空！');
             }
         }
+        function deleteRobot() {
+            var robotName = prompt("请输入要删除的机器人名称：", "");
+            
+            if (robotName) {
+                var formData = new FormData();
+                formData.append('robot_name', robotName);
+                
+                fetch('/delete-robot', {
+                    method: 'POST',
+                    body: formData
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('请求失败！');
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert('请求发送失败，请检查网络连接或服务器状态。');
+                });
+            } else {
+                alert('机器人名称不能为空！');
+            }
+        }
         document.getElementById('new-robot-form').addEventListener('click', function(event) {
             createRobot();
+        });
+        document.getElementById('remove-robot').addEventListener('click', function(event) {
+            deleteRobot();
         });
     </script>
 </body>

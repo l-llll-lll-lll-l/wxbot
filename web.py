@@ -83,5 +83,12 @@ def create_robot():
     db.save_bot(robot_name, None)
     return '机器人创建请求已收到', 200
 
+@app.route('/delete-robot', methods=['POST'])
+def delete_robot():
+    robot_name = request.form.get('robot_name')
+    db.delete_bot(robot_name)
+    return '机器人已删除', 200
+
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -12,24 +12,32 @@ class AutoReplyBot:
         self.model = AIModel(model_path)
         self.db_manager = DatabaseManager(db_path)
         self.running = True  # 添加一个运行标志
+        print("请等待机器人初始化...（可能需要几分钟）")
+        self.db_manager.reset_users_with_list(self.get_all_sessions())
+        self.add_listen_chat()
         
-    def reply(self, message):
+    def reply(self, message, chat_name):
         all_content = []
+        bot = self.db_manager.get_bot_for_user(chat_name)
+        prompts = self.db_manager.get_bot(bot)['prompts']
+        # 我们先只用一条提示词
+        self.model.update_known_info([]) # 先清空
+        if prompts:
+            self.model.update_known_info([prompts]) 
         for content in self.model.chat(message):
             all_content.append(content)
-        # concatenate all the content
         return ''.join(all_content)
             
-
-    def add_listen_chat(self, chat_list):
+    def add_listen_chat(self):
         """添加监听的群组或用户"""
+        chat_list = self.get_all_listen_chat()
         for chat_name in chat_list:
             self.wx.AddListenChat(who=chat_name)
             print(f"Add {chat_name} to listen list.")
 
     def auto_reply(self):
         """自动回复消息"""
-        wait = 1  # 每隔1秒检查一次是否有新消息
+        wait = 1  
         while self.running:
             msgs = self.wx.GetListenMessage()
             for chat in msgs:
@@ -45,7 +53,7 @@ class AutoReplyBot:
                                                 content=content, 
                                                 msg_type=msgtype)
                     if msgtype == 'friend':  # 如果是好友发来的消息，则回复
-                        reply_content = self.reply(content)
+                        reply_content = self.reply(content, chat.who)
                         chat.SendMsg(reply_content)
                         self.db_manager.save_log(time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), 
                                                     sender='bot', 
@@ -60,16 +68,27 @@ class AutoReplyBot:
         self.model.terminate()
         print("Bot is closed.")
         
+    def get_all_sessions(self):
+        list = []
+        sessions = self.wx.GetSessionList()
+        for session in sessions:
+            list.append(session)
+        return list
+    
+    def get_all_listen_chat(self):
+        bots = self.db_manager.list_bots()
+        users = []
+        for bot in bots:
+            users.append(self.db_manager.get_users_for_bot(bot['name']))
+        rst = []
+        for user in users:
+            rst.extend(user)
+        rst = list(set(rst)) # 正常来说没有重复，但是还是保守的加入去重
+        return rst
+    
 if __name__ == "__main__":
     bot = AutoReplyBot(model_path="./qwen2.5_0.5b/Qwen2.5-0.5B-Instruct-q0f16-MLC", db_path="bot.db")
-    print("Bot is setting listener... it may take a few mins.(wait until all the mumbers below are loaded)")
-    
-    db = DatabaseManager("bot.db")
-    
-    bot.add_listen_chat(db.get_users_for_bot("bot1"))
-
-    # 设置信号处理程序
+    # 设置信号处理程序（用于Ctrl+C退出）
     signal.signal(signal.SIGINT, bot.signal_handler)
-
     print("Bot is running...")
     bot.auto_reply()
