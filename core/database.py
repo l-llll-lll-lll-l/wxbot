@@ -215,4 +215,8 @@ if __name__ == "__main__":
     db.assign_user_to_bot("bot1", "测试")
     db.assign_user_to_bot("bot2", "Charlie")
     
+    db.save_log(time="2021-08-01 12:00:00", sender="罗...", receiver="bot1", content="你好", msg_type="friend")
+    db.save_log(time="2021-08-01 12:00:01", sender="bot1", receiver="罗...", content="Hello", msg_type="reply")
+    db.save_log(time="2021-08-01 12:00:02", sender="测试", receiver="bot1", content="你好", msg_type="friend")
+    db.save_log(time="2021-08-01 12:00:03", sender="bot1", receiver="测试", content="Hello", msg_type="reply")
     

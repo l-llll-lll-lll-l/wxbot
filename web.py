@@ -48,7 +48,7 @@ def logs_page():
     users_r = [ log['receiver'] for log in msgs ]
     # combine two lists and remove duplicates
     users = list(set(users_s + users_r))
-    logs = [ msg['content'] for msg in msgs ]
+    logs = [ (msg['time'], msg['msg_type'], msg['sender'], msg['receiver'], msg['content']) for msg in msgs ]
     return render_template('logs.html', users=users, logs=logs)
 
 # 更新机器人和用户关联的路由

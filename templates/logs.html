@@ -105,14 +105,12 @@
         <div class="log-list">
             <ul id="logList">
                 {% for log in logs %}
-                <li data-user="{{ log[1] }}">
-                    [{{ log[0] }}] 用户消息: {{ log[2] }}, 机器人回复: {{ log[3] }}
+                <li data-user="{{ log[2] }}">
+                    [{{ log[0] }}] 发送方: {{ log[2] }}, 接收方: {{ log[3] }}, 内容: {{ log[4] }}
                 </li>
                 {% endfor %}
             </ul>
         </div>
-
-        <button onclick="location.href='/export_logs'">导出日志</button>
     </div>
 
     <script>
