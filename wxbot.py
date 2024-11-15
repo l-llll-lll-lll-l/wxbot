@@ -3,7 +3,6 @@ import threading
 from core.wxutils import AutoReplyBot
 import os
 import signal
-import sys
 os.environ['MLC_LLM_HOME'] = "./"
 
 

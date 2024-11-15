@@ -13,7 +13,10 @@ class AutoReplyBot:
         self.db_manager = DatabaseManager(db_path)
         self.running = True  # 添加一个运行标志
         print("请等待机器人初始化...（可能需要几分钟）")
-        self.db_manager.reset_users_with_list(self.get_all_sessions())
+        all_sessiions = self.get_all_sessions()
+        all_users = self.db_manager.get_all_users()
+        all_listen_chat = list(set(all_sessiions + all_users))
+        self.db_manager.reset_users_with_list(all_listen_chat)
         self.add_listen_chat()
         
     def reply(self, message, chat_name):
