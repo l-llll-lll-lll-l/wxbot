@@ -1,9 +1,9 @@
 from wxauto import WeChat
 import time
-from models import AIModel
+from .models import AIModel
 import time
 import signal
-from database import DatabaseManager
+from .database import DatabaseManager
 
 class AutoReplyBot:
     def __init__(self, model_path, db_path):
@@ -19,6 +19,8 @@ class AutoReplyBot:
     def reply(self, message, chat_name):
         all_content = []
         bot = self.db_manager.get_bot_for_user(chat_name)
+        if not bot: # 如果这个机器人在数据库中没有找到，那么就不回复（可能是运行中机器人被删除）
+            return None
         prompts = self.db_manager.get_bot(bot)['prompts']
         # 我们先只用一条提示词
         self.model.update_known_info([]) # 先清空
@@ -54,8 +56,9 @@ class AutoReplyBot:
                                                 msg_type=msgtype)
                     if msgtype == 'friend':  # 如果是好友发来的消息，则回复
                         reply_content = self.reply(content, chat.who)
-                        chat.SendMsg(reply_content)
-                        self.db_manager.save_log(time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), 
+                        if reply_content:
+                            chat.SendMsg(reply_content)
+                            self.db_manager.save_log(time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), 
                                                     sender='bot', 
                                                     receiver=who, 
                                                     content=reply_content, 

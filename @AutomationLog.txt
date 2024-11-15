@@ -1,1 +1,4 @@
 2024-11-13 21:27:30.046 wxauto.py[574] AddListenChat -> Can not move cursor. ListItemControl's BoundingRectangle is (0,0,0,0)[0x0]. SearchProperties: {RegexName: '测试', ControlType: ListItemControl}
+Can not load UIAutomationCore.dll.
+You may need to install Windows Update KB971513.
+https://github.com/yinkaisheng/WindowsUpdateKB971513ForIUIAutomation

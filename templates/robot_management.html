@@ -138,7 +138,7 @@
                 body: JSON.stringify({ robot: selectedRobot, users: selectedUsers })
             }).then(response => {
                 if (response.ok) {
-                    alert("用户关联更新成功！");
+                    alert("用户关联更新成功！需要重启以生效");
                     location.reload();
                 } else {
                     alert("更新失败，请重试。");
