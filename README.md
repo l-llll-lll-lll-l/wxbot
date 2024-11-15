@@ -1,1 +1,1 @@
-# wechatAI
+# wxbot
