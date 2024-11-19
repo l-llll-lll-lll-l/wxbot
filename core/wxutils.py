@@ -2,14 +2,13 @@ from wxauto import WeChat
 import time
 from .models import AIModel
 import time
-import signal
 from .database import DatabaseManager
 
 class AutoReplyBot:
-    def __init__(self, model_path, db_path):
+    def __init__(self, modelname, db_path):
         self.wx = WeChat()
         self.listen_list = []  # 监听列表
-        self.model = AIModel(model_path)
+        self.model = AIModel(modelname)
         self.db_manager = DatabaseManager(db_path)
         self.running = True  # 添加一个运行标志
         print("请等待机器人初始化...（可能需要几分钟）")
@@ -49,15 +48,15 @@ class AutoReplyBot:
                 who = chat.who  # 获取聊天窗口名（人或群名）
                 one_msgs = msgs[chat]  # 获取消息内容
                 for msg in one_msgs:
-                    msgtype = msg.type  # 获取消息类型
-                    content = msg.content  # 获取消息内容
+                    msgtype = msg.type  
+                    content = msg.content 
                     print(f'【{who}】：{content}')
                     self.db_manager.save_log(time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), 
                                                 sender=who, 
                                                 receiver='bot', 
                                                 content=content, 
                                                 msg_type=msgtype)
-                    if msgtype == 'friend':  # 如果是好友发来的消息，则回复
+                    if msgtype == 'friend':  
                         reply_content = self.reply(content, chat.who)
                         if reply_content:
                             chat.SendMsg(reply_content)

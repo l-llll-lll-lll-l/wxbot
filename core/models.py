@@ -1,20 +1,21 @@
-from mlc_llm import MLCEngine
+from .ollama_engine import OllamaEngine  
+import json
 
 class AIModel:
-    def __init__(self, model_path, memory_size=5):
+    def __init__(self, model_name, base_url="http://localhost:11434", memory_size=5):
         """
         Initialize the AI model engine.
-        
+
         Parameters:
-            model_path (str): Path to the model file.
+            model_name (str): Name of the model on the Ollama server.
+            base_url (str): Base URL of the Ollama server.
         """
-        self.model_path = model_path
-        self.engine = MLCEngine(self.model_path)
+        self.model_name = model_name
+        self.engine = OllamaEngine(base_url, model_name)
         self.known_info = []
         self.memory_size = memory_size
-        # self.chat_history = [] not support yet
 
-    def chat(self, message, stream=True):
+    def chat_stream(self, message):
         """
         Generate chat completion from the model.
 
@@ -25,17 +26,24 @@ class AIModel:
         Yields:
             str: Each segment of the response as it is generated.
         """
-        # self.chat_history.append({"role": "user", "content": message})
-        # if len(self.chat_history) > self.memory_size:
-        #     self.chat_history = self.chat_history[-self.memory_size:]
-
-        # messages = [{"role": "system", "content": '\n'.join(self.known_info)}] + self.chat_history # history same not useful on qwen2.5 0.5b ->（has effect but not so well）
-        
         messages = [{"role": "system", "content": '\n'.join(self.known_info)}] + [{"role": "user", "content": message}]
         
-        for response in self.engine.chat.completions.create(messages=messages, model=self.model_path, stream=stream):
-            for choice in response.choices:
-                yield choice.delta.content
+        for response in self.engine.create_completion(messages=messages, stream=True):
+            yield response
+
+    def chat(self, message):
+        """
+        Generate chat completion from the model without streaming.
+
+        Parameters:
+            message (str): The user's input message.
+
+        Returns:
+            str: The response from the model.
+        """
+        response = [json.loads(i)["message"]["content"] for i in self.chat_stream(message)]
+        response = ''.join(response)
+        return response
 
     def update_known_info(self, new_info):
         """
@@ -60,6 +68,19 @@ class AIModel:
 
     def terminate(self):
         """
-        Terminate the engine and free resources.
+        Terminate the engine (not required for Ollama).
         """
-        self.engine.terminate()
+        pass  # Ollama doesn't require explicit termination
+
+if __name__ == "__main__":
+    model = AIModel(model_name="qwen2.5:0.5b")
+
+    # 更新已知信息
+    model.add_to_known_info("This is a known fact.")
+
+    # 生成对话
+    user_input = "What is your knowledge on AI?"
+    print(model.chat(user_input))
+    # 释放资源（如果需要）
+    
+    model.terminate()
