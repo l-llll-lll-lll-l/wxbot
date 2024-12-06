@@ -4,3 +4,4 @@ model_weights/
 .idea/
 bot.db
 **/__pycache__/
+@AutomationLog.txt

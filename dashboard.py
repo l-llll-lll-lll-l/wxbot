@@ -52,7 +52,7 @@ def logs_page():
     # combine two lists and remove duplicates
     users = list(set(users_s + users_r))
     logs = [ (msg['time'], msg['msg_type'], msg['sender'], msg['receiver'], msg['content']) for msg in msgs ]
-    return render_template('logs.html', users=users, logs=logs)
+    return render_template('logs.html', users=users, logs=logs[::-1])
 
 # 更新机器人和用户关联的路由
 @app.route('/robot-management', methods=['GET', 'POST'])
