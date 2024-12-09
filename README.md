@@ -19,7 +19,7 @@
 
 ### 步骤 1: 获取WXBot仓库
 在GitHub上搜索`wxbot`仓库(https://github.com/l-llll-lll-lll-l/wxbot)，并下载压缩包。
-<img alt="图片1.png" src="(https://github.com/l-llll-lll-lll-l/wxbot/blob/main/%E5%9B%BE%E7%89%871.png)"/>
+<img alt="图片1.png" src="(https://github.com/l-llll-lll-lll-l/wxbot/blob/main/图片1.png)"/>
 
 ### 步骤 2: 下载Ollama模型
 访问[Ollama官方下载页面](https://ollama.com/download)下载Ollama模型。
