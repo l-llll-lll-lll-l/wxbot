@@ -18,45 +18,45 @@
 ## 安装步骤
 
 ### 步骤 1: 获取WXBot仓库
-在GitHub上搜索`wxbot`仓库(https://github.com/l-llll-lll-lll-l/wxbot)，并下载压缩包。
-<img alt="图片1.png" src="(https://github.com/l-llll-lll-lll-l/wxbot/main/图片1.png)"/>
+下载压缩包或拉去本项目。
+<img alt="图片1.png" src="image/图片1.png"/>
 
 ### 步骤 2: 下载Ollama模型
 访问[Ollama官方下载页面](https://ollama.com/download)下载Ollama模型。
-<img alt="图片2.png" src="C:\Users\lenovo\Desktop\wechatAI\图片2.png"/>
+<img alt="图片2.png" src="image/图片2.png"/>
 
 ### 步骤 3: 安装Ollama模型
 打开Windows Powershell，输入以下命令安装模型：
 ollama run qwen2.5:0.5b
-<img alt="图片3.png" src="C:\Users\lenovo\Desktop\wechatAI\图片3.png"/>
-<img alt="图片4.png" src="C:\Users\lenovo\Desktop\wechatAI\图片4.png"/>
+<img alt="图片3.png" src="image/图片3.png"/>
+<img alt="图片4.png" src="image/图片4.png"/>
 
 ### 步骤 4: 安装依赖
 找到下载的wxbot文件夹，打开终端或命令提示符，输入以下命令安装依赖：
 pip install wxauto, flask
-<img alt="图片6.png" src="C:\Users\lenovo\Desktop\wechatAI\图片6.png"/>
+<img alt="图片6.png" src="image/图片6.png"/>
 
 ### 步骤 5: 运行WXBot
 在`wxbot`文件夹中，打开终端或命令提示符，输入以下命令启动WXBot：
 python wxbot.py
-<img alt="图片7.png" src="C:\Users\lenovo\Desktop\wechatAI\图片7.png"/>
+<img alt="图片7.png" src="image/图片7.png"/>
 
 ### 步骤 6: 访问管理界面
 在Powershell中按住`Ctrl`键并点击域名`127.0.0.1:5000`，打开管理界面。
 
-<img alt="图片8.png" src="C:\Users\lenovo\Desktop\wechatAI\图片8.png"/>
+<img alt="图片8.png" src="image/图片8.png"/>
 
 ### 步骤 7: 创建微信机器人
 - 点击“微信机器人管理”。
-<img alt="图片9.png" src="C:\Users\lenovo\Desktop\wechatAI\图片9.png"/>
+<img alt="图片9.png" src="image/图片9.png"/>
 - 点击“创建机器人”，并输入微信机器人名称。
-<img alt="图片10.png" src="C:\Users\lenovo\Desktop\wechatAI\图片10.png"/>
+<img alt="图片10.png" src="image/图片10.png"/>
 - 选择你想关联的用户。
-<img alt="图片11.png" src="C:\Users\lenovo\Desktop\wechatAI\图片11.png"/>
+<img alt="图片11.png" src="image/图片11.png"/>
 
 ### 步骤 8: 正式运行
 完成上述步骤后，您的微信机器人即可正式运行。
-<img alt="图片12.png" src="C:\Users\lenovo\Desktop\wechatAI\图片12.png"/>
+<img alt="图片12.png" src="image/图片12.png"/>
 
 ## 贡献指南
 我们欢迎任何形式的贡献，包括但不限于代码提交、文档改进、问题报告等。请遵循我们的贡献指南。
