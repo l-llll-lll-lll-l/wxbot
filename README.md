@@ -22,11 +22,11 @@
 ### 步骤 2: 下载Ollama模型
 访问[Ollama官方下载页面](https://ollama.com/download)下载Ollama模型。
 <img alt="图片2.png" src="image/图片2.png"/>
+<img alt="图片3.png" src="image/图片3.png"/>
 
 ### 步骤 3: 安装Ollama模型
-打开Windows Powershell，输入以下命令安装模型：
+安装完成后，打开Windows Powershell，输入以下命令安装模型：
 ollama run qwen2.5:0.5b
-<img alt="图片3.png" src="image/图片3.png"/>
 <img alt="图片4.png" src="image/图片4.png"/>
 
 ### 步骤 4: 安装依赖
